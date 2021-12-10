@@ -32,7 +32,7 @@
                 class="mt-8"
                 [formGroup]="signUpForm">
 
-                <!-- Name field -->
+                <!-- Name field -->        
                 <mat-form-field class="w-full">
                     <mat-label>Full name</mat-label>
                     <input
@@ -59,8 +59,22 @@
                     </mat-error>
                 </mat-form-field>
 
-                <!-- Password field -->
                 <mat-form-field class="w-full">
+                    <mat-label>Phone Number</mat-label>
+                    <input
+                        id="email"
+                        matInput
+                        [formControlName]="'phone'">
+                    <mat-error *ngIf="signUpForm.get('phone').hasError('required')">
+                        Phone number address is required
+                    </mat-error>
+                    <mat-error *ngIf="signUpForm.get('phone').hasError('phone')">
+                        Please enter a valid phone number
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Password field -->
+               <!-- <mat-form-field class="w-full">
                     <mat-label>Password</mat-label>
                     <input
                         id="password"
@@ -85,15 +99,21 @@
                     <mat-error>
                         Password is required
                     </mat-error>
-                </mat-form-field>
+                </mat-form-field>-->
 
                 <!-- Company field -->
                 <mat-form-field class="w-full">
-                    <mat-label>Company</mat-label>
+                    <mat-label>Schoo Name</mat-label>
                     <input
-                        id="company-confirm"
+                        id="school-confirm"
                         matInput
-                        [formControlName]="'company'">
+                        [formControlName]="'school'">
+                        <mat-error *ngIf="signUpForm.get('phone').hasError('required')">
+                           School name is required
+                        </mat-error>
+                        <mat-error *ngIf="signUpForm.get('phone').hasError('phone')">
+                            Please enter a valid school name
+                        </mat-error>
                 </mat-form-field>
 
                 <!-- ToS and PP -->
@@ -158,7 +178,7 @@
         <div class="z-10 relative w-full max-w-2xl">
             <div class="text-7xl font-bold leading-none text-gray-100">
                 <div>Welcome to</div>
-                <div>our community</div>
+                <div>Skuli</div>
             </div>
             <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
                 Fuse helps developers to build organized and well coded dashboards full of beautiful and rich modules.

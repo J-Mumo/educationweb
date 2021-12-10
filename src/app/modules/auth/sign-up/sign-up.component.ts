@@ -46,8 +46,8 @@ export class AuthSignUpComponent implements OnInit
         this.signUpForm = this._formBuilder.group({
                 name      : ['', Validators.required],
                 email     : ['', [Validators.required, Validators.email]],
-                password  : ['', Validators.required],
-                company   : [''],
+                phone  : ['', Validators.required],
+                school   : ['', Validators.required],
                 agreements: ['', Validators.requiredTrue]
             }
         );
