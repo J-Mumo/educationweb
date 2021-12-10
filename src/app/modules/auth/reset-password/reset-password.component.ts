@@ -5,6 +5,7 @@ import { fuseAnimations } from '@fuse/animations';
 import { FuseValidators } from '@fuse/validators';
 import { FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector     : 'auth-reset-password',
@@ -28,6 +29,8 @@ export class AuthResetPasswordComponent implements OnInit
      */
     constructor(
         private _authService: AuthService,
+        private _route: ActivatedRoute,
+        private _router: Router,
         private _formBuilder: FormBuilder
     )
     {
@@ -75,7 +78,12 @@ export class AuthResetPasswordComponent implements OnInit
         this.showAlert = false;
 
         // Send the request to the server
-        this._authService.resetPassword(this.resetPasswordForm.get('password').value)
+        const passwordResetCode = this._route.snapshot.queryParamMap.get('code');
+        const email = this._route.snapshot.queryParamMap.get('email');
+        const password = this.resetPasswordForm.get('password').value;
+        const resetPasswordRequest: { email: string; passwordResetCode: string; password: string } = { email, passwordResetCode, password };
+
+        this._authService.resetPassword(resetPasswordRequest)
             .pipe(
                 finalize(() => {
 
@@ -92,20 +100,24 @@ export class AuthResetPasswordComponent implements OnInit
             .subscribe(
                 (response) => {
 
-                    // Set the alert
-                    this.alert = {
-                        type   : 'success',
-                        message: 'Your password has been reset.'
-                    };
-                },
-                (response) => {
+                    if (response.saved) {
+                        
+                        this.alert = {
+                            type   : 'success',
+                            message: 'Your password has been reset.'
+                        };
 
-                    // Set the alert
-                    this.alert = {
-                        type   : 'error',
-                        message: 'Something went wrong, please try again.'
-                    };
-                }
+                        this._router.navigateByUrl('/sign-in');
+                    } 
+                    else {
+
+                        // Set the alert
+                        this.alert = {
+                            type   : 'error',
+                            message: response.error
+                        };
+                    }
+                },
             );
     }
 }

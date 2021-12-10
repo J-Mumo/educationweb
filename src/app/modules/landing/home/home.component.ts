@@ -12,5 +12,6 @@ export class LandingHomeComponent
      */
     constructor()
     {
+        console.log('Am here')
     }
 }

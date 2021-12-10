@@ -69,7 +69,8 @@ export class AuthForgotPasswordComponent implements OnInit
         this.showAlert = false;
 
         // Forgot password
-        this._authService.forgotPassword(this.forgotPasswordForm.get('email').value)
+        const forgotPasswordRequest: { email: string } = { email: this.forgotPasswordForm.get('email').value };
+        this._authService.forgotPassword(forgotPasswordRequest)
             .pipe(
                 finalize(() => {
 
@@ -86,6 +87,7 @@ export class AuthForgotPasswordComponent implements OnInit
             .subscribe(
                 (response) => {
 
+                    console.log(response)
                     // Set the alert
                     this.alert = {
                         type   : 'success',
@@ -93,6 +95,7 @@ export class AuthForgotPasswordComponent implements OnInit
                     };
                 },
                 (response) => {
+                    console.log(response)
 
                     // Set the alert
                     this.alert = {

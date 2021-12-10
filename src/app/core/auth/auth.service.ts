@@ -46,9 +46,9 @@ export class AuthService
      *
      * @param email
      */
-    forgotPassword(email: string): Observable<any>
+    forgotPassword(forgotPasswordRequest: { email: string; }): Observable<any>
     {
-        return this._httpClient.post('api/auth/forgot-password', email);
+        return this._httpClient.post('/education/user/sendforgottenpasswordemail', forgotPasswordRequest);
     }
 
     /**
@@ -56,9 +56,9 @@ export class AuthService
      *
      * @param password
      */
-    resetPassword(password: string): Observable<any>
+    resetPassword(resetPasswordRequest : { email: string; passwordResetCode: string; password: string}): Observable<any>
     {
-        return this._httpClient.post('api/auth/reset-password', password);
+        return this._httpClient.post('/education/user/resetforgottenpassword', resetPasswordRequest);
     }
 
     /**
