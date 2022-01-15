@@ -4,6 +4,8 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
+import { RegisterRequest } from '../user/user.types';
+import { SaveResponseWithId } from 'app/shared/models/response.model';
 
 @Injectable()
 export class AuthService
@@ -141,11 +143,11 @@ export class AuthService
     /**
      * Sign up
      *
-     * @param user
+     * @param RegisterRequest
      */
-    signUp(user: { name: string; email: string; password: string; company: string }): Observable<any>
+    signUp(request: RegisterRequest): Observable<SaveResponseWithId>
     {
-        return this._httpClient.post('api/auth/sign-up', user);
+        return this._httpClient.post<any>('education/school/register', request);
     }
 
     /**
