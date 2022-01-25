@@ -117,9 +117,9 @@
                     <form [formGroup]="addressForm">
                         <mat-form-field class="w-full">
                             <mat-label>County</mat-label>
-                            <mat-select id="county" name="county" (onChange)="getCountyConstituencies($event)" [formControlName]="'county'">
-                                <mat-option *ngFor="let type of data?.countyTransfers" [value]="type.id">
-                                    {{type.name}}
+                            <mat-select id="county" name="county" (selectionChange)="getCountyConstituencies($event)" [formControlName]="'county'">
+                                <mat-option *ngFor="let county of data?.countyTransfers" [value]="county.id">
+                                    {{county.name}}
                                 </mat-option>
                             </mat-select>
                             <mat-error *ngIf="addressForm.get('county').hasError('required')">
@@ -129,7 +129,7 @@
 
                         <mat-form-field class="w-full">
                             <mat-label>Constituency</mat-label>
-                            <mat-select id="county" name="county" (onChange)="getConstituencyWards($event)" [formControlName]="'county'">
+                            <mat-select id="county" name="county" (selectionChange)="getConstituencyWards($event)" [formControlName]="'county'">
                                 <mat-option *ngFor="let constituency of constituencies" [value]="constituency.id">
                                     {{constituency.name}}
                                 </mat-option>

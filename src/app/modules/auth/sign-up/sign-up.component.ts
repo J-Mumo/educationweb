@@ -176,14 +176,15 @@ export class AuthSignUpComponent implements OnInit
     }
 
     getCountyConstituencies(e: any){
-        const countyId = parseInt(e.target.value);
+        const countyId = e.value;
+        console.log("CountyId: " + countyId)
         this._addressService.getCountyConstituencies(countyId).subscribe((res: ConstituencyTransfer[])=>{
             this.constituencies= res
         })
     }
 
     getConstituencyWards(e: any){
-        const constituencyId = parseInt(e.target.value);
+        const constituencyId =e.value;
         this._addressService.getConstituencyWards(constituencyId).subscribe((res: WardTransfer[])=>{
             this.wards = res
         })
