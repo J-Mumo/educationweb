@@ -11,10 +11,10 @@ export class AddressService {
   constructor(private http: HttpClient) { }
 
   getCountyConstituencies(countyId: number): Observable<ConstituencyTransfer[]>{
-    return this.http.get<any>('education/address/constituencies')
+    return this.http.get<any>(`education/address/constituencies/${countyId}`)
   }
 
   getConstituencyWards(constituencyId: number): Observable<WardTransfer[]>{
-    return this.http.get<any>('education/address/wards')
+    return this.http.get<any>(`education/address/wards/${constituencyId}`)
   }
 }
