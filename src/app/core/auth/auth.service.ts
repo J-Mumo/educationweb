@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
 import { RegisterRequest } from '../user/user.types';
 import { SaveResponseWithId } from 'app/shared/models/response.model';
 import { AUTH_TOKEN_PASSWORD, AUTH_TOKEN_USERNAME } from './auth.constant';
+import { LoggedInUserDetails } from 'app/modules/auth/sign-in/response';
+import { set, get } from 'lodash';
 
 @Injectable()
 export class AuthService
 {
     private _authenticated: boolean = false;
    AUTH_TOKEN_URL="oauth/token";
+   LOGIN_INITIAL_DATA_URL = '/education/user/loggedinuserdetails/get';
 
     /**
      * Constructor
@@ -23,6 +26,23 @@ export class AuthService
     )
     {
     }
+    getLoginInitialData(username: string): Observable<LoggedInUserDetails> {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+            })
+        };
+
+        return this._httpClient.post(
+            this.LOGIN_INITIAL_DATA_URL, username, httpOptions).pipe(map(
+                (initialData: LoggedInUserDetails) => {
+                
+                    return initialData;
+                }
+            ))}
+    
+  
+  
 
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
@@ -87,7 +107,12 @@ export class AuthService
           `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}` +
           `&grant_type=password`;
         return this._httpClient.post(this.AUTH_TOKEN_URL, body, httpOptions).pipe(
-           map((response:any))
+           map((response:any)=>{
+               if(response.accessToken){
+                   return response.accessToken;
+               }
+               return null;
+           })
         );
     }
 
