@@ -137,7 +137,7 @@ export class AuthSignUpComponent implements OnInit
             this.userForm.value.phone,
             this.userForm.value.email,
             this.schoolForm.value.schoolName,
-            this.schoolForm.value.wardId,
+            this.addressForm.value.ward,
             this.addressForm.value.firstLine,
             this.addressForm.value.secondLine,
             this.longitude,
