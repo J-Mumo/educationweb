@@ -21,7 +21,8 @@ export class RegisterRequest{
         public latitude: string,
         public schoolTypeId: number,
         public schoolLevelId: number,
-        public description: string
+        public description: string,
+        public password: string
     ){}
 }
   
