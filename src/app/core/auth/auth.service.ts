@@ -54,6 +54,16 @@ export class AuthService
         return this._httpClient.post('/education/user/sendforgottenpasswordemail', forgotPasswordRequest);
     }
 
+     /**
+      * Activate
+      *
+      * @param accountActivationRequest
+    */
+    activate(emailActivationCode: string): Observable<any>
+    {
+        return this._httpClient.post('/education/user/activate', emailActivationCode);
+    }
+  
     /**
      * Reset password
      *
