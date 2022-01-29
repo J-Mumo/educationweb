@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertType } from '@fuse/components/alert';
+import { FuseValidators } from '@fuse/validators';
 import { AuthService } from 'app/core/auth/auth.service';
 import { RegisterRequest } from 'app/core/user/user.types';
 import { ConstituencyTransfer, WardTransfer } from 'app/shared/models/address.model';
@@ -11,25 +12,24 @@ import { AddressService } from 'app/shared/services/address.service';
 import { SchoolService } from 'app/shared/services/school.service';
 
 @Component({
-    selector     : 'auth-sign-up',
-    templateUrl  : './sign-up.component.html',
+    selector: 'auth-sign-up',
+    templateUrl: './sign-up.component.html',
     encapsulation: ViewEncapsulation.None,
-    animations   : fuseAnimations
+    animations: fuseAnimations
 })
-export class AuthSignUpComponent implements OnInit
-{
+export class AuthSignUpComponent implements OnInit {
     @ViewChild('signUpNgForm') signUpNgForm: NgForm;
     @ViewChild('userSignUpNgForm') userSignUpNgForm: NgForm;
     isLinear = false
     alert: { type: FuseAlertType; message: string } = {
-        type   : 'success',
+        type: 'success',
         message: ''
     };
     userForm: FormGroup;
     signUpForm: FormGroup;
     schoolForm: FormGroup;
     addressForm: FormGroup;
-    agreementForm: FormGroup;
+    agreementAndPasswordForm: FormGroup;
     showAlert: boolean = false;
     longitude: string
     latitude: string
@@ -47,8 +47,7 @@ export class AuthSignUpComponent implements OnInit
         private _router: Router,
         private _addressService: AddressService,
         private _schoolService: SchoolService
-    )
-    {
+    ) {
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -58,8 +57,7 @@ export class AuthSignUpComponent implements OnInit
     /**
      * On init
      */
-    ngOnInit(): void
-    {
+    ngOnInit(): void {
         this.userForm = this._formBuilder.group({
             firstName: ['', Validators.required],
             lastName: ['', Validators.required],
@@ -68,9 +66,16 @@ export class AuthSignUpComponent implements OnInit
 
         })
 
-        this.agreementForm = this._formBuilder.group({
-            agreements: ['', Validators.required]
-        })
+        this.agreementAndPasswordForm = this._formBuilder.group({
+            agreements: ['', Validators.required],
+            password: ['', Validators.required],
+            passwordConfirm: ['', Validators.required]
+        },
+        {
+            validators: FuseValidators.mustMatch('password', 'passwordConfirm')
+        }
+        
+        )
 
         this.addressForm = this._formBuilder.group({
             county: ['', Validators.required],
@@ -89,25 +94,25 @@ export class AuthSignUpComponent implements OnInit
 
         // Create the form
         this.signUpForm = this._formBuilder.group({
-                name      : ['', Validators.required],
-                email     : ['', [Validators.required, Validators.email]],
-                phone  : ['', Validators.required],
-                school   : ['', Validators.required],
-                agreements: ['', Validators.requiredTrue]
-            }
+            name: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]],
+            phone: ['', Validators.required],
+            school: ['', Validators.required],
+            agreements: ['', Validators.requiredTrue]
+        }
         );
-        
+
 
         this.getRegisterInitialData();
-        
+
     }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
-    getRegisterInitialData(){
-        this._schoolService.getRegisterSchoolInitialData().subscribe((res: RegisterSchoolInitialData)=>{
+    getRegisterInitialData() {
+        this._schoolService.getRegisterSchoolInitialData().subscribe((res: RegisterSchoolInitialData) => {
             this.data = res;
         })
     }
@@ -115,11 +120,9 @@ export class AuthSignUpComponent implements OnInit
     /**
      * Sign up
      */
-    signUp(): void
-    {
+    signUp(): void {
         // Do nothing if the form is invalid
-        if ( this.userForm.invalid  && this.addressForm.invalid && this.agreementForm.invalid && this.schoolForm.invalid)
-        {
+        if (this.userForm.invalid && this.addressForm.invalid && this.agreementAndPasswordForm.invalid && this.schoolForm.invalid) {
             return;
         }
 
@@ -127,7 +130,7 @@ export class AuthSignUpComponent implements OnInit
         this.userForm.disable();
         this.addressForm.disable();
         this.schoolForm.disable();
-        this.agreementForm.disable();
+        this.agreementAndPasswordForm.disable();
         // Hide the alert
         this.showAlert = false;
 
@@ -144,7 +147,8 @@ export class AuthSignUpComponent implements OnInit
             this.latitude,
             this.schoolForm.value.schoolTypeId,
             this.schoolForm.value.schoolLevelId,
-            this.schoolForm.value.description
+            this.schoolForm.value.description,
+            this.agreementAndPasswordForm.value.password
 
         )
         // Sign up
@@ -166,7 +170,7 @@ export class AuthSignUpComponent implements OnInit
 
                     // Set the alert
                     this.alert = {
-                        type   : 'error',
+                        type: 'error',
                         message: 'Something went wrong, please try again.'
                     };
                     // Show the alert
@@ -175,17 +179,17 @@ export class AuthSignUpComponent implements OnInit
             );
     }
 
-    getCountyConstituencies(e: any){
+    getCountyConstituencies(e: any) {
         const countyId = e.value;
         console.log("CountyId: " + countyId)
-        this._addressService.getCountyConstituencies(countyId).subscribe((res: ConstituencyTransfer[])=>{
-            this.constituencies= res
+        this._addressService.getCountyConstituencies(countyId).subscribe((res: ConstituencyTransfer[]) => {
+            this.constituencies = res
         })
     }
 
-    getConstituencyWards(e: any){
-        const constituencyId =e.value;
-        this._addressService.getConstituencyWards(constituencyId).subscribe((res: WardTransfer[])=>{
+    getConstituencyWards(e: any) {
+        const constituencyId = e.value;
+        this._addressService.getConstituencyWards(constituencyId).subscribe((res: WardTransfer[]) => {
             this.wards = res
         })
     }
