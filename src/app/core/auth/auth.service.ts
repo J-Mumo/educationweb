@@ -4,18 +4,14 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
-import { RegisterRequest } from '../user/user.types';
+import { RegisterRequest, User } from '../user/user.types';
 import { SaveResponseWithId } from 'app/shared/models/response.model';
 import { AUTH_TOKEN_PASSWORD, AUTH_TOKEN_USERNAME } from './auth.constant';
-import { LoggedInUserDetails } from 'app/modules/auth/sign-in/response';
-import { set, get } from 'lodash';
 
 @Injectable()
 export class AuthService
 {
     private _authenticated: boolean = false;
-   AUTH_TOKEN_URL="oauth/token";
-   LOGIN_INITIAL_DATA_URL = '/education/user/loggedinuserdetails/get';
 
     /**
      * Constructor
@@ -26,23 +22,6 @@ export class AuthService
     )
     {
     }
-    getLoginInitialData(username: string): Observable<LoggedInUserDetails> {
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-            })
-        };
-
-        return this._httpClient.post(
-            this.LOGIN_INITIAL_DATA_URL, username, httpOptions).pipe(map(
-                (initialData: LoggedInUserDetails) => {
-                
-                    return initialData;
-                }
-            ))}
-    
-  
-  
 
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
@@ -90,29 +69,41 @@ export class AuthService
      *
      * @param credentials
      */
-    signIn(username: string, password: string ): Observable<any>
+    signIn(credentials: { email: string; password: string }): Observable<any>
     {
         // Throw error, if the user is already logged in
         if ( this._authenticated )
         {
             return throwError('User is already logged in.');
         }
+
         const httpOptions = {
             headers: new HttpHeaders({
               'Content-Type': 'application/x-www-form-urlencoded',
-              'Authorization': 'Basic ' + btoa(AUTH_TOKEN_USERNAME + ':' + AUTH_TOKEN_PASSWORD)
+              Authorization: 'Basic ' + btoa(AUTH_TOKEN_USERNAME + ':' + AUTH_TOKEN_PASSWORD)
             })
-          };
-          const body =
-          `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}` +
-          `&grant_type=password`;
-        return this._httpClient.post(this.AUTH_TOKEN_URL, body, httpOptions).pipe(
-           map((response:any)=>{
-               if(response.accessToken){
-                   return response.accessToken;
-               }
-               return null;
-           })
+        };
+          
+        const body = `username=${encodeURIComponent(credentials.email)}&password=${encodeURIComponent(credentials.password)}` + `&grant_type=password`;
+
+        return this._httpClient.post('/oauth/token', body, httpOptions).pipe(
+            switchMap((response: any) => {
+                
+                // Store the access token in the local storage
+                this.accessToken = response.access_token;
+
+                // Set the authenticated flag to true
+                this._authenticated = true;
+
+                // Store the user on the user service
+                // const user: User = { firstName: response.firstName,lastName: response.lastName,accountActivated: response.accountActivated,role:response.role,email:response.email};
+                // this._userService.update({
+                //     ...user
+                // }).subscribe();
+
+                // Return a new observable with the response
+                return of(response);
+            })
         );
     }
 

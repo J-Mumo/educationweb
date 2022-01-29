@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { JwtHelperService } from '@auth0/angular-jwt';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
-import { UserService } from 'app/shared/services/user.service';
-import { LoggedInUserDetails } from './response';
 
 @Component({
     selector: 'auth-sign-in',
@@ -34,7 +33,7 @@ export class AuthSignInComponent implements OnInit {
         private _authService: AuthService,
         private _formBuilder: FormBuilder,
         private _router: Router,
-        private _userService: UserService
+        private _jwtHelperService: JwtHelperService
     ) {
     }
 
@@ -54,6 +53,53 @@ export class AuthSignInComponent implements OnInit {
         });
     }
 
+    private getRedirectUrl(decodedToken: any): string {
+
+        const roles: string[] = decodedToken.authorities;
+        const email = decodedToken.user_name;
+        const emailValidated = roles.find(x => x === 'Email Validated');
+        const admin = roles.find(x => x === 'Admin');
+        const teacher = roles.find(x => x === 'Teacher');
+        const student = roles.find(x => x === 'Student');
+        const parent = roles.find(x => x === 'Parent');
+
+        if (!emailValidated) {
+
+            this._router.navigate(['/validate-email'], { queryParams: { email } });
+        }
+        else if (teacher) {
+
+            return '/t';
+        }
+        else if (admin) {
+
+            return '/admin';
+        }
+        else if (student) {
+
+            return '/s';
+        }
+        else if (parent) {
+
+            return '/p';
+        }
+        return '#';
+    }
+    
+    private navigateAfterSuccess(response: any): void {
+        
+        const decodedToken = this._jwtHelperService.decodeToken(response.access_token);
+        
+        // Set the redirect url.
+        // The '/signed-in-redirect' is a dummy url to catch the request and redirect the user
+        // to the correct page after a successful sign in. This way, that url can be set via
+        // routing file and we don't have to touch here.
+        const redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || this.getRedirectUrl(decodedToken);
+
+        // Navigate to the redirect url
+        this._router.navigateByUrl(redirectURL);
+      }
+    
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
@@ -72,63 +118,30 @@ export class AuthSignInComponent implements OnInit {
 
         // Hide the alert
         this.showAlert = false;
-        const email = this.signInForm.value.email;
-        const password = this.signInForm.value.password;
 
         // Sign in
-        this._authService.signIn(email, password)
-            .subscribe(res => {
-                if (res) {
-                    this._userService.login(res);
-                    this.authorities = this._userService.getAuthorities();
-                    this.getLoggedInUser(email);
+        this._authService.signIn(this.signInForm.value)
+            .subscribe(
+                (response) => {
+                    this.navigateAfterSuccess(response);
+                },
+                (response) => {
+
+                    // Re-enable the form
+                    this.signInForm.enable();
+
+                    // Reset the form
+                    this.signInNgForm.resetForm();
+
+                    // Set the alert
+                    this.alert = {
+                        type   : 'error',
+                        message: 'Wrong email or password'
+                    };
+
+                    // Show the alert
+                    this.showAlert = true;
                 }
-            });
+            );
     }
-    getLoggedInUser(email: string) {
-        this._authService.getLoginInitialData(email).subscribe((data: LoggedInUserDetails) => {
-            this.checkIfEmailIsValid(email);
-        });
-    }
-    checkIfEmailIsValid(email: string) {
-        const roles: string[] = this._userService.getAuthorities();
-        if (!this.emailValidated(roles)) {
-            //navigate to validate email
-            this.navigateToValidateEmail(email);
-
-        } else {
-            const route = this.navigateToUserDashboard(roles);
-            this._router.navigate([route]);
-        }
-    }
-    private navigateToValidateEmail(email: string) {
-        this._router.navigate(['/email/validate'],
-          { queryParams: { email: email } });
-    }
-      
-    navigateToUserDashboard(roles: string[]) {
-        const superadmin = roles.find(x => x === 'SuperAdmin');
-        const admin = roles.find(x => x === 'Admin');
-        const teacher = roles.find(x => x === 'Teacher');
-        if (superadmin) {
-            return '/superadmin/dashboard';
-        } else if (admin) {
-            return '/admin/dashboard';
-        } else if (teacher) {
-            return '/teacher/dashboard';
-        }
-    }
-    private emailValidated(roles: string[]): boolean {
-        if (roles !== undefined) {
-            const emailValidated = roles.find(x => x === 'Email Validated');
-            if (emailValidated) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
 }

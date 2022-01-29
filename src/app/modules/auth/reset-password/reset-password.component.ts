@@ -116,6 +116,11 @@ export class AuthResetPasswordComponent implements OnInit
                             type   : 'error',
                             message: response.error
                         };
+
+                        setTimeout(() => {
+
+                            this._router.navigateByUrl('/forgot-password');
+                        }, 5000)
                     }
                 },
             );

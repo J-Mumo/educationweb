@@ -87,21 +87,22 @@ export class AuthForgotPasswordComponent implements OnInit
             .subscribe(
                 (response) => {
 
-                    console.log(response)
-                    // Set the alert
-                    this.alert = {
-                        type   : 'success',
-                        message: 'Password reset sent! You\'ll receive an email if you are registered on our system.'
-                    };
-                },
-                (response) => {
-                    console.log(response)
+                    if (response.emailSent) {
 
-                    // Set the alert
-                    this.alert = {
-                        type   : 'error',
-                        message: 'Email does not found! Are you sure you are already a member?'
-                    };
+                        // Set the alert
+                        this.alert = {
+                            type   : 'success',
+                            message: 'Password reset sent! You\'ll receive an email if you are registered on our system.'
+                        };
+                    }
+                    else {
+
+                        // Set the alert
+                        this.alert = {
+                            type   : 'error',
+                            message: 'Email does not found! Are you sure you are already a member?'
+                        };
+                    }
                 }
             );
     }
