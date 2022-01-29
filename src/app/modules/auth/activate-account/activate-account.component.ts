@@ -1,10 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
-import { FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
-import { ActivateEmailRequest, EmailActivationResponse } from '../email-model';
-import { EmailService } from '../email.service';
 
 @Component({
   selector: 'app-activateaccount',
