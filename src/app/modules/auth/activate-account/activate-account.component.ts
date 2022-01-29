@@ -16,7 +16,7 @@ export class ActivateAccountComponent implements OnInit {
   code!: string
   email!: string
   emailActivated!: boolean
-  showAlert
+  showAlert: boolean = false;
 
   alert: { type: FuseAlertType; message: string } = {
     type   : 'success',
@@ -34,7 +34,13 @@ export class ActivateAccountComponent implements OnInit {
       this.email,
       this.code
     )
-    this.emailService.activateUserEmail(this.code).subscribe((res: EmailActivationResponse)=>{
+    this.emailService.activateUserEmail(this.code)
+    .pipe(
+      finalize(() => {
+          this.showAlert = true;
+      })
+  )
+    .subscribe((res: EmailActivationResponse)=>{
       if(res.emailActivated){
         this.emailActivated = true;
         this.alert = {
@@ -52,3 +58,7 @@ export class ActivateAccountComponent implements OnInit {
     })
   }
 }
+function finalize(arg0: () => void): import("rxjs").OperatorFunction<EmailActivationResponse, unknown> {
+  throw new Error('Function not implemented.');
+}
+

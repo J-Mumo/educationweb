@@ -10,6 +10,7 @@ import { ConstituencyTransfer, WardTransfer } from 'app/shared/models/address.mo
 import { RegisterSchoolInitialData } from 'app/shared/models/school.model';
 import { AddressService } from 'app/shared/services/address.service';
 import { SchoolService } from 'app/shared/services/school.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
     selector: 'auth-sign-up',
@@ -152,29 +153,31 @@ export class AuthSignUpComponent implements OnInit {
 
         )
         // Sign up
-        this._authService.signUp(request)
+        this._authService.signUp(request)  .pipe(
+            finalize(() => {
+                this.userForm.enable();
+                this.schoolForm.enable();
+                this.schoolForm.enable();
+                this.addressForm.enable();
+                // Reset the form
+                this.signUpNgForm.resetForm();
+                // Show the alert
+                this.showAlert = true;
+            })
+        )
             .subscribe(
                 (response) => {
-
                     // Navigate to the confirmation required page
                     this._router.navigateByUrl('/confirmation-required');
                 },
-                (response) => {
-                    // Re-enable the form
-                    this.userForm.enable();
-                    this.schoolForm.enable();
-                    this.schoolForm.enable();
-                    this.addressForm.enable();
-                    // Reset the form
-                    this.signUpNgForm.resetForm();
+                (response) => {                              
 
                     // Set the alert
                     this.alert = {
                         type: 'error',
                         message: 'Something went wrong, please try again.'
                     };
-                    // Show the alert
-                    this.showAlert = true;
+                  
                 }
             );
     }
