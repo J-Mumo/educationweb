@@ -105,16 +105,29 @@ export class AuthService
                 // Set the authenticated flag to true
                 this._authenticated = true;
 
-                // Store the user on the user service
-                // const user: User = { firstName: response.firstName,lastName: response.lastName,accountActivated: response.accountActivated,role:response.role,email:response.email};
-                // this._userService.update({
-                //     ...user
-                // }).subscribe();
+                this.getLoggedInUserDetails();
 
                 // Return a new observable with the response
                 return of(response);
             })
         );
+    }
+
+    /**
+     * Get logged in user details
+     */
+    getLoggedInUserDetails(): void
+    {
+
+        this._httpClient.get('/education/user/loggedinuserdetails').subscribe((response: any) => {
+                
+                // Store the user on the user service
+                const user: User = { firstName: response.firstName,lastName: response.lastName, id: response.id, name:response.name, email:response.email};
+                this._userService.update({
+                    ...user
+                }).subscribe();
+
+            })    
     }
 
     /**
